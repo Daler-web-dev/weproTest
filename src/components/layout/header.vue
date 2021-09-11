@@ -38,6 +38,7 @@ header {
     padding: 31px 100px;
     border-bottom: 1px solid #EAEBEF;
     .name {
+        text-transform: capitalize;
         font-size: 29px;
         font-weight: bold;
     }

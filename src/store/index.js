@@ -14,6 +14,7 @@ export default new Vuex.Store({
                 visible: true,
                 score: 6.25,
                 answered: false,
+                isTrue: false,
                 answers: [
                     {
                         text: 'name',
@@ -40,6 +41,7 @@ export default new Vuex.Store({
                 score: 6.25,
                 option: 'courses',
                 answered: false,
+                isTrue: false,
                 answers: [
                     {
                         text: 'Графический дизайн',
@@ -85,6 +87,7 @@ export default new Vuex.Store({
                 visible: false,
                 score: 6.25,
                 answered: false,
+                isTrue: false,
                 answers: [
                     {
                         text: 'CTRL + A',
@@ -125,6 +128,7 @@ export default new Vuex.Store({
                 visible: false,
                 score: 6.25,
                 answered: false,
+                isTrue: false,
                 answers: [
                     {
                         text: 'CTRL + A',
@@ -205,6 +209,7 @@ export default new Vuex.Store({
                 visible: false,
                 score: 6.25,
                 answered: false,
+                isTrue: false,
                 answers: [
                     {
                         text: 'Только на рабочем столе',
@@ -245,6 +250,7 @@ export default new Vuex.Store({
                 visible: false,
                 score: 6.25,
                 answered: false,
+                isTrue: false,
                 answers: [
                     {
                         text: 'Скачивать и просматривать файлы',
@@ -285,6 +291,7 @@ export default new Vuex.Store({
                 visible: false,
                 score: 6.25,
                 answered: false,
+                isTrue: false,
                 answers: [
                     {
                         text: 'Открытия файла/папки',
@@ -325,6 +332,7 @@ export default new Vuex.Store({
                 visible: false,
                 score: 6.25,
                 answered: false,
+                isTrue: false,
                 answers: [
                     {
                         text: 'База данных',
@@ -365,6 +373,7 @@ export default new Vuex.Store({
                 visible: false,
                 score: 6.25,
                 answered: false,
+                isTrue: false,
                 answers: [
                     {
                         text: 'База данных',
@@ -374,13 +383,13 @@ export default new Vuex.Store({
                     },
                     {
                         text: 'Текстовой редактор',
-                        wrong: true,
+                        wrong: false,
                         answered: false,
                         id: uuidv4(),
                     },
                     {
                         text: 'Графический редактор',
-                        wrong: false,
+                        wrong: true,
                         answered: false,
                         id: uuidv4(),
                     },
@@ -405,6 +414,7 @@ export default new Vuex.Store({
                 visible: false,
                 score: 6.25,
                 answered: false,
+                isTrue: false,
                 answers: [
                     {
                         text: 'SHIFT+CTRL+ALT',
@@ -445,6 +455,7 @@ export default new Vuex.Store({
                 visible: false,
                 score: 6.25,
                 answered: false,
+                isTrue: false,
                 answers: [
                     {
                         text: 'Флешки',
@@ -491,6 +502,7 @@ export default new Vuex.Store({
                 visible: false,
                 score: 6.25,
                 answered: false,
+                isTrue: false,
                 answers: [
                     {
                         text: 'Определить размер элемента',
@@ -534,10 +546,11 @@ export default new Vuex.Store({
                 id: 14,
                 question:
                     'Из 200 компьютеров 16 оказались бракованными. Сколько процентов от всех компьютеров составили бракованные? Ведите расчеты тут:',
-                type: 'input',
+                type: 'inputAnswer',
                 visible: false,
                 score: 6.25,
                 answered: false,
+                isTrue: false,
                 answers: [
                     {
                         text: 'your answer',
@@ -551,11 +564,12 @@ export default new Vuex.Store({
             {
                 id: 15,
                 question:
-                    'Из 200-литрового бака вылили 40 литров воды. Сколько процентов воды вылили? Ведите расчеты тут:',
-                type: 'input',
+                    'Из 200-литрового бака вылили 40 литров воды. Сколько процентов воды вылили? Ведите ответ тут:',
+                type: 'inputAnswer',
                 visible: false,
                 score: 6.25,
                 answered: false,
+                isTrue: false,
                 answers: [
                     {
                         text: 'your answer',
@@ -573,6 +587,8 @@ export default new Vuex.Store({
                 visible: false,
                 score: 6.25,
                 answered: false,
+                isTrue: false,
+                option: 'socmedia',
                 answers: [
                     {
                         text: 'Instagram',
@@ -611,15 +627,32 @@ export default new Vuex.Store({
                     },
                 ],
             },
+            {
+                id: 17,
+                question: 'Результаты',
+                type: 'result',
+                visible: false,
+                answered: false,
+                answers: {
+                    userName: '',
+                    userSurname: '',
+                    userScore: 0,
+                    userProcent: 0,
+                    userCourse: ''
+                },
+            },
         ],
         userData: {
             userName: '',
             userSurname: '',
+            userCourse: '',
+            userReached: '',
+            userMobile: '',
             tableScore: 6.25,
         },
         widgets: {
-            errorWidget: false
-        }
+            errorWidget: false,
+        },
     },
     getters: {
         questions: state => state.questions,
@@ -628,31 +661,54 @@ export default new Vuex.Store({
     },
     mutations: {
         nextQuestion(state, data) {
+            event.preventDefault()
+            // transfer variables 
             let name
+            let phoneNumber
+
+            // мап для поверхностного клонирования 
             state.questions.map(item => {
                 if (item.id === data) {
-                    if (item.type === 'checkbox') {
-                        for (let option of item.answers) {
-                            if (option.answered) {
-                                item.answered = true
+                    // проверяем на тип объекта 
+                    switch (item.type) {
+                        case 'checkbox':
+                            for (let option of item.answers) {
+                                if (option.answered) {
+                                    item.answered = true
+                                }
                             }
-                        }
-                    } else if (item.type === 'input') {
-                        console.log(item.type);
-                        for (let option of item.answers) {
-                            if (option.name !== '') {
-                                item.answered = true
+                            break;
+                        case 'input':
+                            for (let option of item.answers) {
+                                if (option.name !== '') {
+                                    item.answered = true
+                                }
                             }
-                        }
+                            break;
+                        case 'inputAnswer':
+                            for (let option of item.answers) {
+                                if (option.name == option.wrong) {
+                                    item.isTrue = true
+                                    item.answered = true
+                                } else {
+                                    item.isTrue = false 
+                                    item.answered = true
+                                }
+                            }
+                            break;
+                        default:
+                            console.log('фигня какая то пошла');
+                            break;
                     }
                 }
 
-                if(item.id === data) {
+                if (item.id === data) {
                     if (item.answered) {
                         for (let item of state.questions) {
                             let temp = data + 1
                             if (item.id === 1) {
                                 name = item.answers[0].name + ' ' + item.answers[1].name
+                                phoneNumber = item.answers[2].name
                             }
                             if (item.id === data) {
                                 item.visible = false
@@ -666,48 +722,56 @@ export default new Vuex.Store({
                         state.widgets.errorWidget = true
                         setTimeout(() => {
                             state.widgets.errorWidget = false
-                        }, 2000);
+                        }, 2000)
                     }
                 }
             })
+            if(data === 16) {
+                let temp = []
+                for(let item of state.questions) {
+                    if(item.isTrue) {
+                        temp.push(1)
+                    }
+                    if(item.id === state.questions.length) {
+                        item.answers.userName = name
+                        item.answers.userScore = `${temp.length}/ ${state.questions.length - 4}`
+                        item.answers.userProcent = Math.round(temp.length * 100 / (state.questions.length - 4))
+                        item.answers.userCourse = state.userData.userCourse
+                    }
+                }
+            }
             state.userData.userName = name
+            state.userData.userMobile = phoneNumber
         },
         setAnswer(state, data) {
+            event.preventDefault()
             for (let question of state.questions) {
+                if(question.option === 'courses') {
+                    for (let answer of question.answers) {
+                        if(answer.id === data.answer.id) {
+                            state.userData.userCourse = answer.text
+                        }
+                    }
+                } else if(question.option === 'socmedia') {
+                    for (let answer of question.answers) {
+                        if(answer.id === data.answer.id) {
+                            state.userData.userReached = answer.text
+                        }
+                    }
+                }
                 for (let answer of question.answers) {
                     if (answer.id !== data.answer.id) {
                         answer.answered = false
                     } else {
                         answer.answered = true
+                        if(data.answer.wrong) {
+                            question.isTrue = true
+                        } else {
+                            question.isTrue = false
+                        }
                     }
                 }
             }
-
-
-
-            // temp.answered = !temp.answered
-
-            // console.log(temp)
-            // data.answer.answered = !data.answer.answered
-            // if (data.item.option) {
-            //     data.item.answers.map((item) => {
-            //         if(item.answered === true) {
-            //             state.userData.userCourse = item.text
-            //             console.log(state.userData.userCourse);
-            //         }
-            //     })
-            // } else if (!data.item.option) {
-            //     if(data.answer.wrong) {
-            //         state.userData.userScore++
-            //         console.log(state.userData);
-            //     } else {
-            //         console.log('s');
-            //     }
-            //  }
-
-            // for(let item of state.questions) {
-            //     console.log(item);
-            // }
         },
     },
     actions: {
@@ -719,3 +783,4 @@ export default new Vuex.Store({
         },
     },
 })
+
